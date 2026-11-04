@@ -1,0 +1,82 @@
+[
+  {
+    "id": "hira-national",
+    "page": "https://www.data.go.kr/data/15051059/fileData.do",
+    "title": "전국 병의원 및 약국 현황",
+    "provider": "건강보험심사평가원",
+    "category": "hospital",
+    "fields": {
+      "name": "요양기관명",
+      "phone": "전화번호",
+      "address": "주소"
+    },
+    "data_as_of": "2026-09-30",
+    "min_rows": 90000,
+    "max_rows": 140000,
+    "license": "공공저작물 : 출처표시 (제 1유형)",
+    "format": "hira_zip",
+    "max_age_days": 180,
+    "enabled": true,
+    "license_checked_at": "2026-10-31"
+  },
+  {
+    "id": "post-national",
+    "page": "https://www.data.go.kr/data/15070368/fileData.do",
+    "title": "전국 우체국 현황",
+    "provider": "과학기술정보통신부 우정사업본부",
+    "category": "post_office",
+    "fields": {
+      "name": "우체국명",
+      "phone": "전화번호",
+      "address": "주소(도로명)"
+    },
+    "data_as_of": "2026-08-31",
+    "min_rows": 2800,
+    "max_rows": 4500,
+    "license": "이용허락범위 제한 없음",
+    "format": "csv",
+    "max_age_days": 365,
+    "enabled": true,
+    "license_checked_at": "2026-10-31"
+  },
+  {
+    "id": "financial-kdic",
+    "page": "https://www.data.go.kr/data/15083240/fileData.do",
+    "title": "부보금융회사 목록",
+    "provider": "예금보험공사",
+    "category": "financial",
+    "fields": {
+      "name": "기관명",
+      "phone": "연락처",
+      "address": "주소"
+    },
+    "data_as_of": "2026-03-31",
+    "min_rows": 200,
+    "max_rows": 400,
+    "license": "이용허락범위 제한 없음",
+    "format": "csv",
+    "max_age_days": 365,
+    "enabled": true,
+    "license_checked_at": "2026-10-31"
+  },
+  {
+    "id": "jeonbuk-pharmacy",
+    "page": "https://www.data.go.kr/data/15134334/fileData.do",
+    "title": "전북특별자치도 약국현황",
+    "provider": "전북특별자치도",
+    "category": "pharmacy",
+    "fields": {
+      "name": "약국명",
+      "phone": "전화번호",
+      "address": "주소"
+    },
+    "data_as_of": "2024-07-24",
+    "min_rows": 900,
+    "max_rows": 2000,
+    "license": "이용허락범위 제한 없음",
+    "format": "csv",
+    "max_age_days": 365,
+    "enabled": true,
+    "license_checked_at": "2026-10-31"
+  }
+]

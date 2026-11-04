@@ -1,0 +1,51 @@
+name: Collect and deploy phone directory
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '23 21 * * 0'
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+concurrency:
+  group: public-directory
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m unittest discover -s tests -v
+      - name: Restore previous index for regression check
+        run: |
+          mkdir -p previous
+          curl --fail --max-time 30 https://softm.github.io/jeonhwahannun/data/index.json -o previous/index.json || rm -f previous/index.json
+      - run: python scripts/collect.py --previous previous/index.json
+      - name: Export only approved directory
+        run: |
+          mkdir -p dist
+          cp index.html app.js style.css data-status.html dist/
+          python scripts/export_web.py
+      - name: Preserve approved snapshot
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="directory-${GITHUB_RUN_ID}"
+          gh release create "$tag" dist/data/latest.json build/phone-db.sqlite --title "$tag" --notes 'Approved public institution directory only. Original and review data excluded.'
+      - uses: actions/configure-pages@v5
+        with:
+          enablement: true
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+      - uses: actions/deploy-pages@v4
+        id: deploy
