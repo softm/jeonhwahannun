@@ -26,9 +26,22 @@ jobs:
           python-version: '3.12'
       - run: python -m unittest discover -s tests -v
       - name: Restore previous index for regression check
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           mkdir -p previous
-          curl --fail --max-time 30 https://softm.github.io/jeonhwahannun/data/index.json -o previous/index.json || rm -f previous/index.json
+          tag=$(gh api "repos/${{ github.repository }}/releases?per_page=100" --jq '[.[] | select(.draft == false) | select(.tag_name | startswith("directory-"))] | sort_by(.published_at) | last | .tag_name // empty')
+          if [ -n "$tag" ]; then
+            gh release download "$tag" --pattern phone-db.sqlite --dir previous
+            python - <<'PYTHON'
+          import sqlite3,json,hashlib
+          from pathlib import Path
+          with sqlite3.connect('previous/phone-db.sqlite') as db:
+              db.row_factory=sqlite3.Row
+              current={r['phone']:hashlib.sha256(json.dumps({k:r[k] for k in ['name','address','category','data_as_of','provider','source_url','expires_on']},sort_keys=True).encode()).hexdigest() for r in db.execute('select * from directory')}
+          Path('previous/index.json').write_text(json.dumps(current))
+          PYTHON
+          fi
       - run: python scripts/collect.py --previous previous/index.json
       - name: Export only approved directory
         run: |
@@ -39,8 +52,13 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          tag="directory-${GITHUB_RUN_ID}"
-          gh release create "$tag" dist/data/latest.json build/phone-db.sqlite --title "$tag" --notes 'Approved public institution directory only. Original and review data excluded.'
+          (cd dist && zip -qr ../phone-web.zip .)
+          tag="directory-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          gh release create "$tag" phone-web.zip dist/data/latest.json build/phone-db.sqlite --title "$tag" --notes 'Approved public institution directory only. Original and review data excluded.'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: phone-web-preview
+          path: phone-web.zip
       - uses: actions/configure-pages@v5
         with:
           enablement: true
